@@ -20,6 +20,8 @@ Give rainfuck the path of a brainfuck script.
 rainfuck ./foo.b
 ```
 
+For help about configuring the runtime behaviour like overflow modes and memory, run with `--help`.
+
 ## Example Scripts
 You can find some sample brainfuck scripts in the [brainfuck_examples](brainfuck_examples/) directory.
 
