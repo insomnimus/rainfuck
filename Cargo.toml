@@ -1,0 +1,11 @@
+[package]
+name = "rainfuck"
+version = "0.1.0"
+edition = "2021"
+
+[profile.dev]
+opt-level = 1
+panic = "abort"
+
+[dependencies]
+clap = { version = "4.3.2", features = ["derive"] }
