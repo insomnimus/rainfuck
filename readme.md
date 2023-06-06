@@ -2,9 +2,9 @@
 Rainfuck is a [brainfuck](https://en.wikipedia.org/wiki/Brainfuck) interpreter.
 
 ## Features
-- Configurable add/sub overflow modes: wrap, saturate and check (runtime error)
-- Configurable pointer overflow modes: wrap around existing memory, saturate or check (runtime error)
-- Configurable read behaviour after EOF is reached: noop, set-zero, check (runtime error)
+- Configurable add/sub overflow modes: wrap, saturate, check (runtime error)
+- Configurable pointer overflow modes: wrap around existing memory, saturate, check (runtime error)
+- Configurable read behaviour after EOF is reached: noop, set0, check (runtime error)
 
 ## Build Instructions
 You'll need a recent [rust](https://www.rust-lang.org) toolchain.
