@@ -297,8 +297,10 @@ impl<I: Read, O: Write> Interpreter<I, O> {
 				if self.dp >= times {
 					self.dp -= times;
 				} else {
-					let n = times % self.mem.len() + self.mem.len();
+					// let n = times % self.mem.len() + self.mem.len();
+					let n = times % self.max_mem + self.max_mem;
 					self.dp = n - self.dp;
+					if self.dp == self.max_mem { self.dp = 0; }
 				}
 			}
 			Overflow::Check => {
