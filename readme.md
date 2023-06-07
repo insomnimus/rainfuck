@@ -54,4 +54,4 @@ chmod +x awib
 { echo "@386_linux"; cat awib.b; } | ./awib > awib2
 ```
 
-You can find more examples at [brainfuck.org](www.brainfuck.org).
+You can find more examples at [brainfuck.org](http://www.brainfuck.org).
