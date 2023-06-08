@@ -1,4 +1,7 @@
-use std::fmt;
+use std::fmt::{
+	self,
+	Write,
+};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum Token {
@@ -14,18 +17,19 @@ pub enum Token {
 
 impl fmt::Display for Token {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		f.write_str(match *self {
-			Self::Left => "<",
-			Self::Right => ">",
-			Self::Add => "+",
-			Self::Sub => "-",
-			Self::Read => ",",
-			Self::Write => ".",
-			Self::LBracket => "[",
-			Self::RBracket => "]",
+		f.write_char(match *self {
+			Self::Left => '<',
+			Self::Right => '>',
+			Self::Add => '+',
+			Self::Sub => '-',
+			Self::Read => ',',
+			Self::Write => '.',
+			Self::LBracket => '[',
+			Self::RBracket => ']',
 		})
 	}
 }
+
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct TokenSpan {
 	pub token: Token,

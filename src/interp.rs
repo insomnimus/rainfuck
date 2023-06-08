@@ -300,7 +300,9 @@ impl<I: Read, O: Write> Interpreter<I, O> {
 					// let n = times % self.mem.len() + self.mem.len();
 					let n = times % self.max_mem + self.max_mem;
 					self.dp = n - self.dp;
-					if self.dp == self.max_mem { self.dp = 0; }
+					if self.dp == self.max_mem {
+						self.dp = 0;
+					}
 				}
 			}
 			Overflow::Check => {

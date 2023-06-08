@@ -1,5 +1,8 @@
 use std::{
-	fmt::{self,},
+	fmt::{
+		self,
+		Write,
+	},
 	num::NonZeroUsize,
 };
 
@@ -15,33 +18,110 @@ pub enum ErrorKind {
 	UnexpectedBracket,
 }
 
-#[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Error {
 	kind: ErrorKind,
-	offset: usize,
+	line: usize,
+	col: usize,
+	arrow: usize,
+	code: Box<str>,
 }
 
 impl fmt::Display for Error {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		write!(f, "{:?}", self)
+		write!(
+			f,
+			"syntax error at line {line}, column {col}: {error}\n\t{code}\n\t",
+			line = self.line,
+			col = self.col,
+			error = match self.kind {
+				ErrorKind::UnmatchedBracket => "missing closing bracket ']'",
+				ErrorKind::UnexpectedBracket => "unexpected closing bracket ']'",
+			},
+			code = self.code,
+		)?;
+
+		for _ in 0..self.arrow {
+			f.write_char('-')?;
+		}
+		f.write_char('^')?;
+		for _ in self.arrow + 1..self.code.len() {
+			f.write_char('-')?;
+		}
+		Ok(())
+	}
+}
+
+impl fmt::Debug for Error {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		f.debug_struct("SyntaxError")
+			.field("kind", &self.kind)
+			.field("line", &self.line)
+			.field("col", &self.col)
+			.field("code", &&self.code)
+			.finish()
 	}
 }
 
 impl std::error::Error for Error {}
 
 impl Error {
-	fn unexpected_bracket(offset: usize, _: &[u8]) -> Self {
+	fn new(kind: ErrorKind, pos: usize, code: &[u8]) -> Self {
+		let line = 1 + code[..pos].iter().filter(|&&c| c == b'\n').count();
+		let left = code[..pos].iter().rposition(|&c| c == b'\n').unwrap_or(0);
+
+		let right = pos
+			+ code[pos..]
+				.iter()
+				.position(|&c| c == b'\n')
+				.unwrap_or(code.len() - pos);
+		let col = pos - left;
+
+		// calculate the arrow for the error message.
+		// replace \t with 4 spaces
+		let mut buf = Vec::with_capacity(12 + right - left);
+		let code = &code[left..right];
+		let mut i = code
+			.iter()
+			.position(|c| !c.is_ascii_whitespace())
+			.unwrap_or(0);
+		let code = &code[i..];
+		let mut arrow = 0;
+		for &c in code {
+			if i + left == pos {
+				// we're at the token that caused the error
+				arrow = buf.len();
+			}
+			if c == b'\t' {
+				buf.extend_from_slice(b"    ");
+			} else {
+				buf.push(c);
+			}
+			i += 1;
+		}
+
+		let last_space = buf
+			.iter()
+			.rposition(|&c| !c.is_ascii_whitespace())
+			.map(|n| n + 1)
+			.unwrap_or(buf.len());
+
 		Self {
-			offset,
-			kind: ErrorKind::UnexpectedBracket,
+			kind,
+			line,
+			col,
+			arrow,
+			code: String::from_utf8_lossy(&buf[..last_space])
+				.into_owned()
+				.into_boxed_str(),
 		}
 	}
 
-	fn unmatched_bracket(offset: usize, _: &[u8]) -> Self {
-		Self {
-			offset,
-			kind: ErrorKind::UnmatchedBracket,
-		}
+	fn unexpected_bracket(pos: usize, code: &[u8]) -> Self {
+		Self::new(ErrorKind::UnexpectedBracket, pos, code)
+	}
+
+	fn unmatched_bracket(pos: usize, code: &[u8]) -> Self {
+		Self::new(ErrorKind::UnmatchedBracket, pos, code)
 	}
 }
 

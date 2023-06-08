@@ -101,7 +101,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
 
 fn main() {
 	if let Err(e) = run() {
-		eprintln!("error: {e:?}");
+		eprintln!("error: {e}");
 		std::process::exit(1);
 	}
 }
