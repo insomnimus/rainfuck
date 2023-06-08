@@ -74,7 +74,7 @@ impl Error {
 				.iter()
 				.position(|&c| c == b'\n')
 				.unwrap_or(code.len() - pos);
-		let col = pos - left;
+		let col = 1 + pos - left;
 
 		// calculate the arrow for the error message.
 		// replace \t with 4 spaces
@@ -192,6 +192,9 @@ fn calculate_jmp(irs: &mut [Ir]) -> usize {
 
 pub fn ops(code: &[u8]) -> Result<Vec<Op>, Error> {
 	let mut irs = collapse(code);
+	if irs.is_empty() {
+		return Ok(Vec::new());
+	}
 	let mut i = 0;
 
 	while i < irs.len() {
